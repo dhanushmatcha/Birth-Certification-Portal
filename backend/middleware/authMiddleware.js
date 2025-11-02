@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'supersecretjwtkey'; // Hardcoded JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use environment variable or fallback
 
 module.exports = function (req, res, next) {
   // Get token from header

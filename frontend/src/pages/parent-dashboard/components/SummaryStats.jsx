@@ -17,14 +17,14 @@ const SummaryStats = ({ applications }) => {
     <div className="row g-4 mb-5">
       {stats.map((stat, index) => (
         <div className="col-md-6 col-lg-3" key={index}>
-          <div className="card h-100 shadow-sm border-0 rounded-4 p-4 bg-background">
+          <div className="dashboard-card h-100 shadow-lg rounded-4 p-4">
             <div className="d-flex align-items-center">
               <div className={`me-3 rounded-circle d-flex align-items-center justify-content-center bg-${stat.color}-subtle`} style={{ width: '48px', height: '48px' }}>
                 <i className={`bi ${stat.icon} fs-4 text-${stat.color}`}></i>
               </div>
               <div>
-                <h3 className="h6 mb-1 text-muted text-uppercase fw-bold">{stat.label}</h3>
-                <p className="h4 fw-bold text-headings mb-0">{stat.value}</p>
+                <h3 className="h6 mb-1 dashboard-text-secondary text-uppercase fw-bold">{stat.label}</h3>
+                <p className="h4 fw-bold dashboard-text-primary mb-0">{stat.value}</p>
               </div>
             </div>
           </div>

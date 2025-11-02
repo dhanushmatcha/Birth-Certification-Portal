@@ -67,8 +67,9 @@ const ApplicationModal = ({ show, onClose, application, onUpdateStatus }) => {
         endpoint = `/api/applications/verify/${application.id}`;
         body = { status: newStatus, reviewNotes };
       } else {
-        endpoint = `/api/applications/reject/${application.id}`;
-        body = { status: newStatus, reviewNotes };
+        // Doctors cannot reject - only admins can
+        endpoint = `/api/applications/verify/${application.id}`;
+        body = { status: 'requires-more-info', reviewNotes };
       }
 
       const response = await fetch(endpoint, {

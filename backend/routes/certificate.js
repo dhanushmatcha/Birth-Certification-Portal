@@ -19,7 +19,7 @@ router.get('/:applicationId', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Application not found' });
     }
 
-    if (application.status !== 'Approved') {
+    if (application.status !== 'approved') {
       return res.status(400).json({ msg: 'Certificate can only be generated for approved applications' });
     }
 
@@ -116,7 +116,7 @@ router.get('/verify/:certificateId', async (req, res) => {
       });
     }
 
-    if (application.status === 'Approved') {
+    if (application.status === 'approved') {
       res.json({
         status: 'verified',
         details: {

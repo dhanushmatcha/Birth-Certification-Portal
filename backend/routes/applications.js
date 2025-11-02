@@ -60,7 +60,7 @@ router.post('/', auth, async (req, res) => {
     res.json({ msg: 'Application submitted successfully', application });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -77,7 +77,7 @@ router.get('/all', auth, async (req, res) => {
     res.json(applications);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -94,13 +94,13 @@ router.get('/my', auth, async (req, res) => {
     res.json(applications);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
 // @route   GET api/applications/:id
 // @desc    Get application by ID
-// @access  Private (Parent, Doctor, Admin)
+// @access  Private (Parent, Admin)
 router.get('/:id', auth, async (req, res) => {
   try {
     const application = await Application.findById(req.params.id);
@@ -112,7 +112,6 @@ router.get('/:id', auth, async (req, res) => {
     // Check if user is authorized to view this application
     if (
       application.parent.toString() !== req.user.id &&
-      req.user.role !== 'doctor' &&
       req.user.role !== 'admin'
     ) {
       return res.status(401).json({ msg: 'User not authorized' });
@@ -124,15 +123,15 @@ router.get('/:id', auth, async (req, res) => {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({ msg: 'Application not found' });
     }
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
 // @route   PUT api/applications/verify/:id
 // @desc    Verify an application
-// @access  Private (Doctors only)
+// @access  Private (Admin only)
 router.put('/verify/:id', auth, async (req, res) => {
-  if (req.user.role !== 'doctor') {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({ msg: 'Not authorized to verify applications' });
   }
 
@@ -145,7 +144,7 @@ router.put('/verify/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Application not found' });
     }
 
-    if (application.status === 'Verified' || application.status === 'Approved') {
+    if (application.status === 'verified' || application.status === 'approved') {
       return res.status(400).json({ msg: 'Application already processed or approved' });
     }
 
@@ -165,7 +164,7 @@ router.put('/verify/:id', auth, async (req, res) => {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({ msg: 'Application not found' });
     }
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -184,13 +183,13 @@ router.put('/approve/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Application not found' });
     }
 
-    if (application.status !== 'Verified') {
+    if (application.status !== 'verified') {
       return res.status(400).json({ msg: 'Application must be verified before approval' });
     }
 
     const certificateId = `DBC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    application.status = 'Approved';
+    application.status = 'approved';
     application.certificateId = certificateId;
     application.dateOfIssue = Date.now();
 
@@ -202,7 +201,7 @@ router.put('/approve/:id', auth, async (req, res) => {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({ msg: 'Application not found' });
     }
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -223,11 +222,11 @@ router.put('/reject/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Application not found' });
     }
 
-    if (application.status === 'Approved') {
+    if (application.status === 'approved') {
       return res.status(400).json({ msg: 'Approved applications cannot be rejected' });
     }
 
-    application.status = 'Rejected';
+    application.status = 'rejected';
     application.reviewNotes = reviewNotes || '';
     await application.save();
 
@@ -237,37 +236,7 @@ router.put('/reject/:id', auth, async (req, res) => {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({ msg: 'Application not found' });
     }
-    res.status(500).send('Server Error');
-  }
-});
-
-// @route   GET api/applications/doctor/stats
-// @desc    Get verification statistics for the logged-in doctor
-// @access  Private (Doctors only)
-router.get('/doctor/stats', auth, async (req, res) => {
-  if (req.user.role !== 'doctor') {
-    return res.status(403).json({ msg: 'Not authorized to view verification stats' });
-  }
-
-  try {
-    const doctorId = req.user.id;
-
-    const totalReviews = await Application.countDocuments({ verifiedBy: doctorId });
-    const verified = await Application.countDocuments({ verifiedBy: doctorId, status: 'Verified' });
-    const rejected = await Application.countDocuments({ verifiedBy: doctorId, status: 'Rejected' });
-    const requiresMoreInfo = await Application.countDocuments({ verifiedBy: doctorId, status: 'requires-more-info' });
-    const pending = await Application.countDocuments({ attendingDoctor: doctorId, status: 'Pending' });
-
-    res.json({
-      totalReviews,
-      verified,
-      rejected,
-      requiresMoreInfo,
-      pending,
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -281,23 +250,12 @@ router.get('/admin/stats', auth, async (req, res) => {
 
   try {
     const totalApplications = await Application.countDocuments();
-    const pendingApplications = await Application.countDocuments({ status: 'Pending' });
-    const approvedApplications = await Application.countDocuments({ status: 'Approved' });
-    const rejectedApplications = await Application.countDocuments({ status: 'Rejected' });
-    const totalCertificatesIssued = await Application.countDocuments({ status: 'Approved', certificateId: { $ne: null } });
+    const pendingApplications = await Application.countDocuments({ status: 'pending' });
+    const approvedApplications = await Application.countDocuments({ status: 'approved' });
+    const rejectedApplications = await Application.countDocuments({ status: 'rejected' });
+    const totalCertificatesIssued = await Application.countDocuments({ status: 'approved', certificateId: { $ne: null } });
 
-    const pendingDoctors = await User.countDocuments({ role: 'Doctor', status: 'pending' });
-    const activeDoctors = await User.countDocuments({ role: 'Doctor', status: 'active' });
-
-    const topDoctors = await Application.aggregate([
-      { $match: { status: 'Approved', verifiedBy: { $ne: null } } },
-      { $group: { _id: '$verifiedBy', count: { $sum: 1 } } },
-      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'doctorInfo' } },
-      { $unwind: '$doctorInfo' },
-      { $project: { _id: 0, name: '$doctorInfo.name', issued: '$count' } },
-      { $sort: { issued: -1 } },
-      { $limit: 5 }
-    ]);
+    // Removed doctor stats - only admin and parent dashboards
 
     const applicationsOverTime = [
       { name: 'Jan', applications: 10, approved: 8, pending: 2 },
@@ -313,17 +271,12 @@ router.get('/admin/stats', auth, async (req, res) => {
       approvedApplications,
       rejectedApplications,
       totalCertificatesIssued,
-      doctorStats: {
-        pending: pendingDoctors,
-        verified: activeDoctors,
-      },
-      topDoctors,
       applicationsOverTime,
     });
 
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -366,7 +319,7 @@ router.get('/admin/reports/csv', auth, async (req, res) => {
 
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -420,7 +373,7 @@ router.get('/admin/reports/pdf', auth, async (req, res) => {
 
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 

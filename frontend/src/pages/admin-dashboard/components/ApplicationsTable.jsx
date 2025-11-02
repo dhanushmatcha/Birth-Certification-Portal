@@ -18,18 +18,18 @@ const ApplicationsTable = ({ applications, onReview }) => {
   };
 
   return (
-    <div className="card shadow-sm border-0 rounded-4 p-4 bg-white">
-      <h3 className="h5 text-headings mb-3">All Applications</h3>
+    <div className="dashboard-card shadow-lg rounded-4 p-4">
+      <h3 className="h5 dashboard-text-primary mb-3">All Applications</h3>
       <div className="table-responsive">
         <table className="table table-hover align-middle">
-          <thead>
+          <thead className="dashboard-card-header">
             <tr>
-              <th scope="col" className="text-headings">Application ID</th>
-              <th scope="col" className="text-headings">Child Name</th>
-              <th scope="col" className="text-headings">Date of Birth</th>
-              <th scope="col" className="text-headings">Status</th>
-              <th scope="col" className="text-headings">Submission Date</th>
-              <th scope="col" className="text-headings">Actions</th>
+              <th scope="col" className="dashboard-text-primary">Application ID</th>
+              <th scope="col" className="dashboard-text-primary">Child Name</th>
+              <th scope="col" className="dashboard-text-primary">Date of Birth</th>
+              <th scope="col" className="dashboard-text-primary">Status</th>
+              <th scope="col" className="dashboard-text-primary">Submission Date</th>
+              <th scope="col" className="dashboard-text-primary">Actions</th>
             </tr>
           </thead>
           <tbody>

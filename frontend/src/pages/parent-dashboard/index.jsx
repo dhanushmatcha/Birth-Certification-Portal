@@ -56,7 +56,7 @@ const ParentDashboard = () => {
           throw new Error('No authentication token found.');
         }
 
-        const response = await fetch('/api/applications/user', {
+        const response = await fetch('/api/applications/my', {
           headers: {
             'x-auth-token': token,
           },
@@ -132,27 +132,10 @@ const ParentDashboard = () => {
   }
 
   return (
-    <div className="min-vh-100 bg-background">
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-navbar-bg shadow-sm">
-        <div className="container-fluid">
-          <Link className="navbar-brand text-navbar-text" to="/parent-dashboard">
-            <img src="/logo.svg" alt="Logo" width="30" height="24" className="d-inline-block align-text-top me-2" />
-            Parent Dashboard
-          </Link>
-          <div className="d-flex">
-            {/* Assuming user name is available in localStorage or context */}
-            <span className="navbar-text me-3 text-navbar-text">Welcome, {JSON.parse(localStorage.getItem('user'))?.name || 'Parent'}</span>
-            <button className="btn btn-outline-alerts-error text-alerts-error" onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right"></i> Logout
-            </button>
-          </div>
-        </div>
-      </nav>
-
+    <div className="min-vh-100 bg-dashboard">
       <main className="container px-4 py-5">
-        <h1 className="display-5 fw-bold text-headings mb-4">My Applications</h1>
-        
+        <h1 className="display-5 fw-bold dashboard-text-primary mb-4">My Applications</h1>
+
         {/* Summary Stats */}
         <SummaryStats applications={filteredApplications} />
 
@@ -169,8 +152,8 @@ const ParentDashboard = () => {
             ))
           ) : (
             <div className="col-12">
-              <div className="alert alert-info bg-info-subtle text-info border-0" role="alert">
-                No applications found. <Link to="/apply" className="alert-link text-primary-button fw-bold">Start a new application</Link>
+              <div className="alert alert-info bg-widget dashboard-text-secondary border-0 rounded-4" role="alert">
+                No applications found. <Link to="/apply" className="alert-link dashboard-text-accent fw-bold">Start a new application</Link>
               </div>
             </div>
           )}

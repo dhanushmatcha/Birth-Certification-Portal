@@ -1,4 +1,3 @@
-// src/components/LoginForm.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -19,79 +18,100 @@ const LoginForm = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Login failed.");
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user)); // Store user data
-
-      // Redirect based on user role
-      if (data.user.role === 'admin') {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/parent-dashboard"); // Or a general home page like "/"
+      let data;
+      try {
+        const text = await res.text();
+        if (!text) {
+          throw new Error("Empty response from server. Is the backend server running?");
+        }
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Parse error:', parseError);
+        throw new Error(`Server error: ${parseError.message}. Make sure the backend server is running on port 5000.`);
       }
+
+      if (!res.ok) {
+        throw new Error(data.msg || `Login failed with status ${res.status}.`);
+      }
+
+      // Verify we have the necessary data
+      if (!data.token || !data.user) {
+        throw new Error('Invalid response from server. Missing token or user data.');
+      }
+
+      // Save to localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Navigate based on role - use replace to prevent going back
+      console.log('Login successful, navigating to dashboard for role:', data.user.role);
+      
+      // Navigate immediately - only admin and parent dashboards
+      const destination = 
+        data.user.role === 'admin' ? "/admin-dashboard" :
+        "/parent-dashboard";
+      
+      navigate(destination, { replace: true });
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      setError(err.message || 'An error occurred during login. Please try again.');
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card fade-in">
-        <h2 className="auth-title mb-3 text-center">Welcome Back 👋</h2>
-        <p className="auth-subtitle mb-4 text-center">
-          Log in to continue to your dashboard
-        </p>
+    <>
+      <h2 className="auth-title">Welcome Back 👋</h2>
+      <p className="auth-subtitle">
+        Log in to continue to your dashboard
+      </p>
 
-        {error && (
-          <div className="alert alert-danger py-2 text-center">{error}</div>
-        )}
+      {error && (
+        <div className="auth-error">{error}</div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label fw-semibold">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="form-control"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-form-group">
+          <label htmlFor="email" className="auth-form-label">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            className="auth-form-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
 
-          <div className="mb-4">
-            <label htmlFor="password" className="form-label fw-semibold">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+        <div className="auth-form-group">
+          <label htmlFor="password" className="auth-form-label">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            className="auth-form-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
 
-          <button type="submit" className="btn btn-primary-button w-100 py-2">
-            Log In
-          </button>
-        </form>
+        <button type="submit" className="auth-button">
+          Log In
+        </button>
+      </form>
 
-        <p className="text-center mt-4">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-primary text-decoration-none fw-semibold">
-            Register here
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="auth-footer">
+        Don't have an account?{" "}
+        <Link to="/register" className="auth-footer-link">
+          Register here
+        </Link>
+      </p>
+    </>
   );
 };
 

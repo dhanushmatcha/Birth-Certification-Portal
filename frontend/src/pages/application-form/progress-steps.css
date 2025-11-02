@@ -1,0 +1,88 @@
+
+/* Progress Steps Styling for Apply Page */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 40px auto;
+  max-width: 700px;
+  font-family: "Poppins", sans-serif;
+}
+
+.step {
+  text-align: center;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #01257D; /* deep-navy */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  background-color: white;
+  color: #01257D; /* deep-navy */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.step.active .circle {
+  background: linear-gradient(135deg, #01257D, #00FFFF); /* deep-navy to electric-blue */
+  color: white;
+  border-color: #00FFFF; /* electric-blue */
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+}
+
+.step.completed .circle {
+  background: #00FFFF; /* electric-blue */
+  color: #01257D; /* deep-navy */
+  border-color: #00FFFF; /* electric-blue */
+}
+
+.step p {
+  font-size: 13px;
+  color: #333; /* text-color */
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.line {
+  position: absolute;
+  height: 2px;
+  background-color: #dcdcdc; /* light-gray */
+  top: 20px;
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+
+.step:nth-child(1) .line {
+  left: 50%;
+  right: -50%;
+}
+
+.step:nth-child(2) .line {
+  left: -50%;
+  right: -50%;
+}
+
+.step:nth-child(3) .line {
+  left: -50%;
+  right: 50%;
+}
+
+.step.active ~ .step .line,
+.step.completed ~ .step .line {
+  background-color: #00FFFF; /* electric-blue */
+}

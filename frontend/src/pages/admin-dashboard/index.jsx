@@ -6,7 +6,7 @@ import SearchAndFilters from './components/SearchAndFilters';
 import ApplicationsTable from './components/ApplicationsTable';
 import ApplicationReviewModal from './components/ApplicationReviewModal';
 import UserManagementPanel from './components/UserManagementPanel';
-import DoctorManagementPanel from './components/DoctorManagementPanel';
+import SummaryStats from './components/SummaryStats';
 
 const ReportsPanel = () => {
   const [loadingCSV, setLoadingCSV] = useState(false);
@@ -219,6 +219,12 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleClearFilters = () => {
+    setCurrentSearchTerm('');
+    setCurrentStatusFilter('');
+    setCurrentDateFilter('');
+  };
+
   const handleReviewApplication = (application) => {
     setSelectedApplication(application);
     setShowReviewModal(true);
@@ -261,70 +267,82 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-vh-100 bg-background">
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-navbar-bg shadow-sm">
-        <div className="container-fluid">
-          <Link className="navbar-brand text-navbar-text" to="/admin-dashboard">
-            <img src="/logo.svg" alt="Logo" width="30" height="24" className="d-inline-block align-text-top me-2" />
-            Admin Dashboard
-          </Link>
-          <div className="d-flex">
-            {/* Assuming user name is available in localStorage or context */}
-            <span className="navbar-text me-3 text-navbar-text">Welcome, {JSON.parse(localStorage.getItem('user'))?.name || 'Admin'}</span>
-            <button className="btn btn-outline-alerts-error text-alerts-error" onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right"></i> Logout
-            </button>
+    <div className="min-vh-100" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <main className="container-fluid px-4 py-5">
+        <div className="row">
+          <div className="col-12">
+            <h1 className="display-4 fw-bold text-white mb-4 text-center">
+              <i className="bi bi-speedometer2 me-3"></i>
+              Admin Dashboard
+            </h1>
           </div>
         </div>
-      </nav>
 
-      <main className="container px-4 py-5">
-        <h1 className="display-5 fw-bold text-headings mb-4">Admin Dashboard</h1>
-        
         {/* Tab Navigation */}
-        <ul className="nav nav-tabs nav-fill mb-4" id="adminDashboardTabs" role="tablist">
-          <li className="nav-item" role="presentation">
-            <button className="nav-link active text-headings" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab" aria-controls="applications" aria-selected="true">Applications</button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button className="nav-link text-headings" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">Users</button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button className="nav-link text-headings" id="doctors-tab" data-bs-toggle="tab" data-bs-target="#doctors" type="button" role="tab" aria-controls="doctors" aria-selected="false">Doctors</button>
-          </li>
-        </ul>
+        <div className="row mb-4">
+          <div className="col-12">
+            <ul className="nav nav-pills nav-fill justify-content-center" id="adminDashboardTabs" role="tablist">
+              <li className="nav-item" role="presentation">
+                <button className="nav-link active fw-bold px-4 py-3 rounded-pill me-2" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab" aria-controls="applications" aria-selected="true" style={{ background: 'rgba(255, 255, 255, 0.95)', color: '#2c3e50', border: 'none' }}>
+                  <i className="bi bi-file-earmark-text me-2"></i>Applications
+                </button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button className="nav-link fw-bold px-4 py-3 rounded-pill" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false" style={{ background: 'rgba(255, 255, 255, 0.95)', color: '#2c3e50', border: 'none' }}>
+                  <i className="bi bi-people me-2"></i>Users
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
 
         {/* Tab Content */}
         <div className="tab-content" id="adminDashboardTabsContent">
           <div className="tab-pane fade show active" id="applications" role="tabpanel" aria-labelledby="applications-tab">
-            {/* Analytics Panel */}
-            <AnalyticsPanel />
-
-            {/* Search and Filters */}
-            <SearchAndFilters onSearch={handleSearch} onFilterChange={handleFilterChange} />
-
-            {/* Applications Table */}
-            <ApplicationsTable applications={filteredApplications} onReview={handleReviewApplication} />
-
-            {/* Reports Panel */}
-            <ReportsPanel />
+            <div className="row g-4">
+              <div className="col-12">
+                {/* Summary Stats */}
+                <SummaryStats stats={{
+                  totalApplications: applications.length,
+                  pendingReviews: applications.filter(app => app.status === 'pending').length,
+                  approved: applications.filter(app => app.status === 'approved').length,
+                  completedCertificates: applications.filter(app => app.status === 'completed').length
+                }} />
+              </div>
+              <div className="col-12">
+                {/* Analytics Panel */}
+                <AnalyticsPanel />
+              </div>
+              <div className="col-12">
+                {/* Search and Filters */}
+                <SearchAndFilters onSearch={handleSearch} onFilterChange={handleFilterChange} onClearFilters={handleClearFilters} />
+              </div>
+              <div className="col-12">
+                {/* Applications Table */}
+                <ApplicationsTable applications={filteredApplications} onReview={handleReviewApplication} />
+              </div>
+              <div className="col-12">
+                {/* Reports Panel */}
+                <ReportsPanel />
+              </div>
+            </div>
           </div>
           <div className="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
-            <UserManagementPanel />
-          </div>
-          <div className="tab-pane fade" id="doctors" role="tabpanel" aria-labelledby="doctors-tab">
-            <DoctorManagementPanel />
+            <div className="row">
+              <div className="col-12">
+                <UserManagementPanel />
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Application Review Modal */}
         {showReviewModal && (
-          <ApplicationReviewModal 
+          <ApplicationReviewModal
             show={showReviewModal}
             onClose={handleCloseReviewModal}
             application={selectedApplication}
-            onUpdateStatus={handleUpdateApplicationStatus} 
+            onUpdateStatus={handleUpdateApplicationStatus}
           />
         )}
       </main>

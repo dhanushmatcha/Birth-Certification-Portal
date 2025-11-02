@@ -11,7 +11,13 @@ const ChildInformationStep = ({ formData, updateFormData, errors }) => {
   const hospitals = [
     { value: "City General Hospital", label: "City General Hospital" },
     { value: "Community Health Clinic", label: "Community Health Clinic" },
-    { value: "St. Jude’s Hospital", label: "St. Jude’s Hospital" },
+    { value: "St. Jude's Hospital", label: "St. Jude's Hospital" },
+  ];
+
+  const doctors = [
+    { value: "Dr. Emily White", label: "Dr. Emily White" },
+    { value: "Dr. Michael Johnson", label: "Dr. Michael Johnson" },
+    { value: "Dr. Sarah Davis", label: "Dr. Sarah Davis" },
   ];
 
   const handleChange = (field, value) => {
@@ -27,11 +33,11 @@ const ChildInformationStep = ({ formData, updateFormData, errors }) => {
       <div className="card-body">
         <div className="row g-3">
           <div className="col-md-6">
-            <label className="form-label fw-semibold">Full Name</label>
+            <label className="form-label fw-semibold">Full Name *</label>
             <input
               type="text"
               className={`form-control ${errors?.childInfo?.fullName ? "is-invalid" : ""}`}
-              placeholder="Enter child’s full name"
+              placeholder="Enter child's full name"
               value={formData?.childInfo?.fullName || ""}
               onChange={(e) => handleChange("fullName", e.target.value)}
             />
@@ -39,13 +45,14 @@ const ChildInformationStep = ({ formData, updateFormData, errors }) => {
           </div>
 
           <div className="col-md-3">
-            <label className="form-label fw-semibold">Date of Birth</label>
+            <label className="form-label fw-semibold">Date of Birth *</label>
             <input
               type="date"
-              className="form-control"
+              className={`form-control ${errors?.childInfo?.dateOfBirth ? "is-invalid" : ""}`}
               value={formData?.childInfo?.dateOfBirth || ""}
               onChange={(e) => handleChange("dateOfBirth", e.target.value)}
             />
+            <div className="invalid-feedback">{errors?.childInfo?.dateOfBirth}</div>
           </div>
 
           <div className="col-md-3">
@@ -59,12 +66,14 @@ const ChildInformationStep = ({ formData, updateFormData, errors }) => {
           </div>
 
           <div className="col-md-6">
+            <label className="form-label fw-semibold">Gender *</label>
             <Select
-              label="Gender"
               options={genderOptions}
               value={formData?.childInfo?.gender || ""}
               onChange={(value) => handleChange("gender", value)}
+              className={errors?.childInfo?.gender ? "is-invalid" : ""}
             />
+            {errors?.childInfo?.gender && <div className="invalid-feedback d-block">{errors?.childInfo?.gender}</div>}
           </div>
 
           <div className="col-md-6">
@@ -79,20 +88,80 @@ const ChildInformationStep = ({ formData, updateFormData, errors }) => {
             />
           </div>
 
-          <div className="col-12">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Place of Birth *</label>
+            <input
+              type="text"
+              className={`form-control ${errors?.childInfo?.placeOfBirth ? "is-invalid" : ""}`}
+              placeholder="e.g., City General Hospital"
+              value={formData?.childInfo?.placeOfBirth || ""}
+              onChange={(e) => handleChange("placeOfBirth", e.target.value)}
+            />
+            <div className="invalid-feedback">{errors?.childInfo?.placeOfBirth}</div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">City of Birth *</label>
+            <input
+              type="text"
+              className={`form-control ${errors?.childInfo?.cityOfBirth ? "is-invalid" : ""}`}
+              placeholder="e.g., New York"
+              value={formData?.childInfo?.cityOfBirth || ""}
+              onChange={(e) => handleChange("cityOfBirth", e.target.value)}
+            />
+            <div className="invalid-feedback">{errors?.childInfo?.cityOfBirth}</div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">State of Birth *</label>
+            <input
+              type="text"
+              className={`form-control ${errors?.childInfo?.stateOfBirth ? "is-invalid" : ""}`}
+              placeholder="e.g., New York"
+              value={formData?.childInfo?.stateOfBirth || ""}
+              onChange={(e) => handleChange("stateOfBirth", e.target.value)}
+            />
+            <div className="invalid-feedback">{errors?.childInfo?.stateOfBirth}</div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Country of Birth *</label>
+            <input
+              type="text"
+              className={`form-control ${errors?.childInfo?.countryOfBirth ? "is-invalid" : ""}`}
+              placeholder="e.g., United States"
+              value={formData?.childInfo?.countryOfBirth || ""}
+              onChange={(e) => handleChange("countryOfBirth", e.target.value)}
+            />
+            <div className="invalid-feedback">{errors?.childInfo?.countryOfBirth}</div>
+          </div>
+
+          <div className="col-md-6">
             <Select
-              label="Birth Hospital"
+              label="Attending Doctor"
+              options={doctors}
+              value={formData?.childInfo?.attendingDoctor || ""}
+              onChange={(value) => handleChange("attendingDoctor", value)}
+            />
+          </div>
+
+          <div className="col-md-6">
+            <Select
+              label="Birth Hospital *"
               options={hospitals}
               value={formData?.childInfo?.attendingHospital || ""}
               onChange={(value) => handleChange("attendingHospital", value)}
             />
+            {(!formData?.childInfo?.attendingDoctor && !formData?.childInfo?.attendingHospital) && errors?.childInfo?.attendingDoctor && (
+              <div className="invalid-feedback d-block">{errors?.childInfo?.attendingDoctor}</div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="card-footer bg-light border-0">
         <small className="text-muted">
-          ⚠️ Ensure details match hospital records exactly.
+          ⚠️ Ensure details match hospital records exactly. * Required fields
         </small>
       </div>
     </div>

@@ -151,7 +151,3 @@ h6 { font-size: 1rem; }   /* Example: 16px */
   flex: 1 1 auto;
 }
 
-.card-hover-shadow:hover {
-  box-shadow: var(--shadow-hover) !important;
-  transition: box-shadow 0.3s ease-in-out;
-}

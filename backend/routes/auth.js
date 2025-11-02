@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
-const JWT_SECRET = 'supersecretjwtkey'; // Hardcoded JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use environment variable or fallback
 
 // @route   POST api/auth/register
 // @desc    Register user
@@ -19,6 +20,12 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('MongoDB not connected');
+      return res.status(503).json({ msg: 'Database connection error. Please try again later.' });
+    }
+
     let user = await User.findOne({ email });
 
     if (user) {
@@ -30,7 +37,7 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password,
-      role,
+      role: role || 'parent', // Default to parent if no role provided
       ...(role === 'doctor' && { facility: facilityId }),
     });
 
@@ -38,7 +45,7 @@ router.post('/register', async (req, res) => {
     user.password = await bcrypt.hash(user.password, salt);
 
     await user.save();
-    console.log('User registered successfully:', user);
+    console.log('User registered successfully:', user.email);
 
     const payload = {
       user: {
@@ -54,15 +61,24 @@ router.post('/register', async (req, res) => {
       (err, token) => {
         if (err) {
           console.error('JWT sign error:', err);
-          throw err;
+          return res.status(500).json({ msg: 'Error generating token. Please try again.' });
         }
-        console.log('JWT token generated:', token);
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, ...(user.role === 'doctor' && { facility: user.facility }) } });
+        console.log('JWT token generated successfully');
+        res.json({ 
+          token, 
+          user: { 
+            id: user.id, 
+            name: user.name, 
+            email: user.email, 
+            role: user.role,
+            ...(user.role === 'doctor' && { facility: user.facility }) 
+          } 
+        });
       }
     );
   } catch (err) {
-    console.error('Server error during registration:', err.message);
-    res.status(500).send('Server error');
+    console.error('Server error during registration:', err);
+    res.status(500).json({ msg: err.message || 'Server error during registration. Please try again.' });
   }
 });
 
@@ -72,9 +88,19 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   console.log('Login attempt for email:', email);
-  console.log('Received password:', password); // Log password for debugging (REMOVE IN PRODUCTION)
+
+  // Input validation
+  if (!email || !password) {
+    return res.status(400).json({ msg: 'Please enter both email and password' });
+  }
 
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('MongoDB not connected');
+      return res.status(503).json({ msg: 'Database connection error. Please try again later.' });
+    }
+
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -103,13 +129,26 @@ router.post('/login', async (req, res) => {
       JWT_SECRET,
       { expiresIn: '1h' },
       (err, token) => {
-        if (err) throw err;
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+        if (err) {
+          console.error('JWT sign error:', err);
+          return res.status(500).json({ msg: 'Error generating token. Please try again.' });
+        }
+        console.log('JWT token generated successfully for user:', user.email);
+        res.json({ 
+          token, 
+          user: { 
+            id: user.id, 
+            name: user.name, 
+            email: user.email, 
+            role: user.role,
+            ...(user.role === 'doctor' && { facility: user.facility })
+          } 
+        });
       }
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('Login error:', err);
+    res.status(500).json({ msg: err.message || 'Server error during login. Please try again.' });
   }
 });
 

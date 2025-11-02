@@ -3,12 +3,22 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userRole = user?.role;
+  let user = null;
+  let userRole = null;
+
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      user = JSON.parse(userStr);
+      userRole = user?.role;
+    }
+  } catch (err) {
+    console.error('Error parsing user from localStorage:', err);
+  }
 
   if (!token) {
     // If no token, always redirect to authentication page
-    return <Navigate to="/authentication" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
@@ -16,13 +26,10 @@ const ProtectedRoute = ({ allowedRoles }) => {
     // redirect to their default dashboard based on their role.
     if (userRole === 'admin') {
       return <Navigate to="/admin-dashboard" replace />;
-    } else if (userRole === 'parent') {
+    } else {
+      // Default all non-admin users to parent dashboard
       return <Navigate to="/parent-dashboard" replace />;
-    } else if (userRole === 'doctor') {
-      return <Navigate to="/doctor-dashboard" replace />;
     }
-    // Fallback for any other roles or unexpected scenarios
-    return <Navigate to="/authentication" replace />;
   }
 
   // If authenticated and role is allowed (or no specific roles required), render the outlet

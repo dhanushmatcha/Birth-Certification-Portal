@@ -10,8 +10,7 @@ import Authentication from './pages/authentication';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import ParentDashboard from './pages/parent-dashboard';
 import AdminDashboard from './pages/admin-dashboard';
-import DoctorDashboard from './pages/doctor-dashboard';
-import SupportPage from './pages/SupportPage';
+import SupportCenter from './pages/support-center';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import VerificationPage from './pages/VerificationPage';
@@ -26,6 +25,8 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['parent']} />}>
             <Route path="/apply" element={<ApplyPage />} />
           </Route>
+          <Route path="/login" element={<Authentication />} />
+          <Route path="/register" element={<Authentication />} />
           <Route path="/authentication" element={<Authentication />} />
 
           {/* Protected Routes */}
@@ -35,13 +36,10 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['parent']} />}>
             <Route path="/parent-dashboard" element={<ParentDashboard />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
-            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-          </Route>
 
           {/* Public or common protected routes */}
           <Route element={<ProtectedRoute />}> {/* No specific roles, just authenticated */}
-            <Route path="/support" element={<SupportPage />} />
+            <Route path="/support" element={<SupportCenter />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/verify-certificate" element={<VerificationPage />} />

@@ -4,7 +4,8 @@ import ChildInformationStep from './components/ChildInformationStep';
 import ParentsInformationStep from './components/ParentsInformationStep';
 import DocumentUploadStep from './components/DocumentUploadStep';
 import ReviewSubmitStep from './components/ReviewSubmitStep';
-import logo from '../../logo.svg'; // Import the logo
+import './progress-steps.css';
+
 
 const ApplicationForm = () => {
   const navigate = useNavigate();
@@ -376,44 +377,21 @@ const ApplicationForm = () => {
 
   return (
     <div className="container-fluid bg-background min-vh-100">
-      {/* Header */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-navbar-bg shadow-sm">
-        <div className="container-fluid">
-          <a className="navbar-brand text-navbar-text" href="/">
-            <img src={logo} alt="Logo" width="30" height="24" className="d-inline-block align-text-top me-2" />
-            Birth Certificate Portal
-          </a>
-          <div className="d-flex">
-            <span className="navbar-text me-3 text-navbar-text">Welcome, {mockUser.name}</span>
-            <button className="btn btn-outline-alerts-error text-alerts-error" onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right"></i> Logout
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Progress Navigation */}
-      <div className="container mt-3">
-        <div className="d-flex justify-content-between mb-4">
-          {steps.map((stepItem) => (
-            <div key={stepItem.id} className={`text-center flex-fill position-relative ${currentStep >= stepItem.id ? 'text-primary-button' : 'text-muted'}`}>
-              <div 
-                className={`rounded-circle border d-flex align-items-center justify-content-center mx-auto mb-2 ${currentStep >= stepItem.id ? 'bg-primary-button text-white border-primary-button' : 'bg-white text-muted border-borders-cards'}`}
-                style={{ width: '36px', height: '36px', cursor: canNavigateToStep(stepItem.id) ? 'pointer' : 'not-allowed' }}
-                onClick={() => canNavigateToStep(stepItem.id) && handleStepClick(stepItem.id)}
-              >
-                {stepItem.id}
-              </div>
-              <p className="small mb-0 text-text-general">{stepItem.label}</p>
-              {stepItem.id < steps.length && (
-                <hr 
-                  className={`position-absolute top-50 start-50 translate-middle w-100 border-2 ${currentStep > stepItem.id ? 'border-primary-button' : 'border-borders-cards'}`}
-                  style={{ zIndex: -1, marginLeft: '50%', width: '100%' }}
-                />
-              )}
+      <div className="progress-steps">
+        {steps.map((stepItem) => (
+          <div key={stepItem.id} className={`step ${currentStep === stepItem.id ? 'active' : ''} ${currentStep > stepItem.id ? 'completed' : ''}`}>
+            <div
+              className="circle"
+              style={{ cursor: canNavigateToStep(stepItem.id) ? 'pointer' : 'not-allowed' }}
+              onClick={() => canNavigateToStep(stepItem.id) && handleStepClick(stepItem.id)}
+            >
+              {stepItem.id}
             </div>
-          ))}
-        </div>
+            <p>{stepItem.label}</p>
+            {stepItem.id < steps.length && <div className="line"></div>}
+          </div>
+        ))}
       </div>
 
       <main className="container px-4 py-5">

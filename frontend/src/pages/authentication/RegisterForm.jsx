@@ -1,4 +1,3 @@
-// src/components/RegisterForm.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -35,126 +34,134 @@ const RegisterForm = () => {
         }),
       });
 
-      console.log('Frontend received response:', res);
-
-      // Check if the response is OK before trying to parse JSON
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.msg || "Registration failed on server.");
+      let data;
+      try {
+        const text = await res.text();
+        if (!text) {
+          throw new Error("Empty response from server. Is the backend server running?");
+        }
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Parse error:', parseError);
+        throw new Error(`Server error: ${parseError.message}. Make sure the backend server is running on port 5000.`);
       }
       
-      const data = await res.json();
-      console.log('Frontend parsed data:', data);
+      if (!res.ok) {
+        throw new Error(data.msg || `Registration failed with status ${res.status}.`);
+      }
 
-      // Store token and user data in localStorage
+      // Verify we have the necessary data
+      if (!data.token || !data.user) {
+        throw new Error('Invalid response from server. Missing token or user data.');
+      }
+
+      // Save to localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirect based on user role
-      if (data.user.role === 'admin') {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/parent-dashboard"); // Or a general home page like "/"
-      }
+      // Navigate based on role - use replace to prevent going back
+      console.log('Registration successful, navigating to dashboard for role:', data.user.role);
+      
+      // Navigate immediately - only admin and parent dashboards
+      const destination = 
+        data.user.role === 'admin' ? "/admin-dashboard" :
+        "/parent-dashboard";
+      
+      navigate(destination, { replace: true });
     } catch (err) {
-      console.error("Frontend registration error:", err);
-      setError(err.message);
+      console.error('Registration error:', err);
+      setError(err.message || 'An error occurred during registration. Please try again.');
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card fade-in">
-        <h2 className="auth-title mb-3 text-center">Create Account ✨</h2>
-        <p className="auth-subtitle mb-4 text-center">
-          Join us and start managing your records easily
-        </p>
+    <>
+      <h2 className="auth-title">Create Account ✨</h2>
+      <p className="auth-subtitle">
+        Join us and start managing your records easily
+      </p>
 
-        {error && (
-          <div className="alert alert-danger py-2 text-center">{error}</div>
-        )}
+      {error && (
+        <div className="auth-error">{error}</div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="name" className="form-label fw-semibold">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="form-control"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your name"
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-form-group">
+          <label htmlFor="name" className="auth-form-label">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            className="auth-form-input"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter your name"
+            required
+          />
+        </div>
 
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label fw-semibold">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="form-control"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+        <div className="auth-form-group">
+          <label htmlFor="email" className="auth-form-label">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            className="auth-form-input"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
 
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label fw-semibold">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="form-control"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Create a password"
-              required
-            />
-          </div>
+        <div className="auth-form-group">
+          <label htmlFor="password" className="auth-form-label">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="auth-form-input"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Create a password"
+            required
+          />
+        </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="confirmPassword"
-              className="form-label fw-semibold"
-            >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              className="form-control"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter your password"
-              required
-            />
-          </div>
+        <div className="auth-form-group">
+          <label htmlFor="confirmPassword" className="auth-form-label">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            className="auth-form-input"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Re-enter your password"
+            required
+          />
+        </div>
 
-          <button type="submit" className="btn btn-primary-button w-100 py-2">
-            Register
-          </button>
-        </form>
+        <button type="submit" className="auth-button">
+          Register
+        </button>
+      </form>
 
-        <p className="text-center mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-primary text-decoration-none fw-semibold">
-            Log in
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="auth-footer">
+        Already have an account?{" "}
+        <Link to="/login" className="auth-footer-link">
+          Log in
+        </Link>
+      </p>
+    </>
   );
 };
 

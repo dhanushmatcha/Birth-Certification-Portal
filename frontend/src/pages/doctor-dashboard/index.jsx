@@ -61,7 +61,7 @@ const DoctorDashboard = () => {
           throw new Error('Unauthorized access. Must be a doctor.');
         }
 
-        const response = await fetch('/api/applications/doctor', {
+        const response = await fetch('/api/applications/doctor/pending', {
           headers: {
             'x-auth-token': token,
           },

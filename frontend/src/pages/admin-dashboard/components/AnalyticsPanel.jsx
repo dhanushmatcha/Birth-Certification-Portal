@@ -93,15 +93,15 @@ const AnalyticsPanel = () => {
     <div className="mb-5">
       {/* Header */}
       <div
-        className="p-4 rounded-4 mb-4 shadow-sm text-white"
+        className="p-4 rounded-4 mb-4 shadow-lg dashboard-card-header"
         style={{
-          background: "linear-gradient(135deg, #2563eb, #9333ea)",
+          background: "linear-gradient(135deg, var(--dashboard-background), var(--widget-background))",
         }}
       >
-        <h2 className="fw-bold mb-1">
-          <i className="bi bi-graph-up-arrow me-2"></i>Analytics Overview
+        <h2 className="fw-bold mb-1 dashboard-text-primary">
+          <i className="bi bi-graph-up-arrow me-2 dashboard-text-accent"></i>Analytics Overview
         </h2>
-        <p className="mb-0 text-light opacity-75">
+        <p className="mb-0 dashboard-text-secondary">
           Monitor application trends, doctor performance, and key statistics.
         </p>
       </div>
@@ -140,38 +140,6 @@ const AnalyticsPanel = () => {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Doctor Stats */}
-      <div className="card shadow-sm border-0 rounded-4 p-4 bg-white mb-4">
-        <h5 className="fw-semibold mb-3">
-          <i className="bi bi-person-vcard me-2 text-primary"></i>Doctor
-          Verification Status
-        </h5>
-        <div className="row g-3">
-          <div className="col-md-6">
-            <div className="d-flex align-items-center bg-warning-subtle rounded-4 p-3 shadow-sm">
-              <i className="bi bi-person-fill-dash fs-3 text-warning me-3"></i>
-              <div>
-                <p className="small text-muted mb-0">Pending Verification</p>
-                <h4 className="fw-bold text-dark mb-0">
-                  {stats.doctorStats?.pending || 0}
-                </h4>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="d-flex align-items-center bg-success-subtle rounded-4 p-3 shadow-sm">
-              <i className="bi bi-person-fill-check fs-3 text-success me-3"></i>
-              <div>
-                <p className="small text-muted mb-0">Active Doctors</p>
-                <h4 className="fw-bold text-dark mb-0">
-                  {stats.doctorStats?.verified || 0}
-                </h4>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Applications Chart */}
@@ -223,45 +191,6 @@ const AnalyticsPanel = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Top Doctors */}
-      {stats.topDoctors && stats.topDoctors.length > 0 && (
-        <div className="card shadow-sm border-0 rounded-4 p-4 bg-white">
-          <h5 className="fw-semibold mb-3">
-            <i className="bi bi-star-fill text-warning me-2"></i>
-            Top Doctors (Certificates Issued)
-          </h5>
-          <ul className="list-group list-group-flush">
-            {stats.topDoctors.map((doctor, index) => (
-              <li
-                key={index}
-                className="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-0 border-bottom border-light"
-              >
-                <div className="d-flex align-items-center">
-                  <span
-                    className="badge bg-gradient rounded-circle me-3 text-white fw-bold"
-                    style={{
-                      width: "34px",
-                      height: "34px",
-                      background:
-                        index === 0
-                          ? "linear-gradient(135deg, #facc15, #f59e0b)"
-                          : index === 1
-                          ? "linear-gradient(135deg, #a1a1aa, #d4d4d8)"
-                          : "linear-gradient(135deg, #c084fc, #a855f7)",
-                    }}
-                  >
-                    {index + 1}
-                  </span>
-                  <span className="fw-semibold text-dark">{doctor.name}</span>
-                </div>
-                <span className="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm">
-                  {doctor.issued} Certificates
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };

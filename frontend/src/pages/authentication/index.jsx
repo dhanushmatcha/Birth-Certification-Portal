@@ -1,42 +1,42 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
-import Card from 'react-bootstrap/Card';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './app.css';
+import './Authentication.css';
 
 const Authentication = () => {
+  const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
 
+  useEffect(() => {
+    if (location.pathname === '/register') {
+      setIsLogin(false);
+    } else {
+      setIsLogin(true);
+    }
+  }, [location]);
+
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <div className="col-md-6 col-lg-5">
-        <div className="card shadow-lg border-0 rounded-4 p-4 bg-white card-hover-shadow"> {/* Apply hover shadow here */}
-          <Card.Body>
-            <ul className="nav nav-pills nav-justified mb-4">
-              <li className="nav-item">
-                <Link
-                  className={`nav-link ${isLogin ? 'active' : ''}`} style={{ cursor: 'pointer' }}
-                  aria-current="page"
-                  to="#"
-                  onClick={() => setIsLogin(true)}
-                >
-                  Login
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link ${!isLogin ? 'active' : ''}`} style={{ cursor: 'pointer' }}
-                  to="#"
-                  onClick={() => setIsLogin(false)}
-                >
-                  Register
-                </Link>
-              </li>
-            </ul>
-            {isLogin ? <LoginForm /> : <RegisterForm />}
-          </Card.Body>
+    <div className="auth-page-container">
+      <div className="auth-card-wrapper">
+        <div className="auth-tabs">
+          <Link
+            className={`auth-tab ${isLogin ? 'active' : ''}`}
+            to="/login"
+            onClick={() => setIsLogin(true)}
+          >
+            Login
+          </Link>
+          <Link
+            className={`auth-tab ${!isLogin ? 'active' : ''}`}
+            to="/register"
+            onClick={() => setIsLogin(false)}
+          >
+            Register
+          </Link>
+        </div>
+        <div className="auth-content">
+          {isLogin ? <LoginForm /> : <RegisterForm />}
         </div>
       </div>
     </div>
