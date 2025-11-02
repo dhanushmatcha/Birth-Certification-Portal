@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-dotenv.config();
+// Hardcoded Environment Variables
+const MONGO_URI = 'mongodb://127.0.0.1:27017/brith';
+const PORT = 5000;
 
 const app = express();
 
