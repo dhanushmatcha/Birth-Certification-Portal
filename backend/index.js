@@ -13,7 +13,7 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/birth';
 // Connect to MongoDB Atlas
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
+  .then(() => console.log(`✅ MongoDB Connected on ${MONGO_URI}`))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
 app.use(express.json());
